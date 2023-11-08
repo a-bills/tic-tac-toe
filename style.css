@@ -1,0 +1,33 @@
+html, body {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: azure;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.5rem;
+    border: 2px solid black;
+    background-color: black;
+    padding: 0.5rem;
+}
+
+.box {
+    width: 10rem;
+    height: 10rem;
+    background-color: white;
+}
+
