@@ -26,9 +26,20 @@ body {
     margin-bottom: 80px;
 }
 
-.box {
+.cell {
     width: 10rem;
     height: 10rem;
     background-color: white;
+    display: grid;
+}
+
+img {
+    grid-column: 1;
+    grid-row: 1;
+    visibility: hidden;
+}
+
+.display-icon {
+    visibility: visible;
 }
 
