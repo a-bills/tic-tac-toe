@@ -35,7 +35,7 @@
 
 */
 
-const InitializeDOM = (function () {
+const CacheDOM = (function () {
     const cellNodes = [...document.querySelectorAll('.cell')];
     const xIcons = [...document.querySelectorAll('.player1')];
     const oIcons = [...document.querySelectorAll('.player2')];
@@ -49,7 +49,7 @@ const InitializeDOM = (function () {
 
 const Gameboard = (function () {
 
-    const domCache = InitializeDOM;
+    const domCache = CacheDOM;
     const xIcons = domCache.getXIcons();
     const oIcons = domCache.getOIcons();
 
@@ -63,7 +63,6 @@ const Gameboard = (function () {
 
     const updateCell = function (event, currentPlayer) {
         const index = event.target.getAttribute('id');
-        console.log(event.target);
         const xIcon = xIcons.filter((icon) => event.target.contains(icon));
         const oIcon = oIcons.filter((icon) => event.target.contains(icon));
 
@@ -72,11 +71,22 @@ const Gameboard = (function () {
             xIcon[0].classList.add('display-icon');
         } else {
             board[index].updateValue(2);
-            oIcon[0].classList.add('display-icon');   
+            oIcon[0].classList.add('display-icon');
         }
     }
 
-    return { getBoard, updateCell };
+    const getCellPositions = function (player) {
+        const cellPositions = board.reduce((cellPositions, cell) => {
+            if (cell.getValue() === player) {
+                cellPositions.push(cell.getPosition());
+            }
+            return cellPositions;
+        }, []);
+
+        return cellPositions;
+    }
+
+    return { getBoard, updateCell, getCellPositions };
 })();
 
 function Cell(i) {
@@ -98,26 +108,64 @@ const gameController = (function (
     playerOne = "Player One",
     playerTwo = "Player Two"
 ) {
-    const domCache = InitializeDOM;
+    const domCache = CacheDOM;
     const cellNodes = domCache.getCellNodes();
 
     const gameboard = Gameboard;
+    const board = gameboard.getBoard();
 
     let currentPlayer = playerOne;
 
-    const changePlayers = function () {
+    function changePlayers() {
         currentPlayer = (currentPlayer === playerOne) ?
             playerTwo : playerOne;
     }
 
+    function checkScore() {
+        const winningCombos = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        const p1Cells = gameboard.getCellPositions(1);
+        const p2Cells = gameboard.getCellPositions(2);
+        console.log({ p1Cells, p2Cells });
+
+        winningCombos.forEach((combo) => {
+            const playerOneWins = combo.every(position => {
+                return p1Cells.includes(position);
+            });
+
+            const playerTwoWins = combo.every(position => {
+                return p2Cells.includes(position);
+            });
+
+            if (playerOneWins) console.log("Player One Wins"); //declareWinner(playerOne);
+
+            if (playerTwoWins) console.log("Player Two Wins"); //declareWinner(playerTwo);      
+        });
+    }
+    // check if all cells have a truthy value for a tie
+    // link to other functions depending on checkScore result
+
     cellNodes.forEach((cellNode) => {
         cellNode.addEventListener('click', (event) => {
-            gameboard.updateCell(event, currentPlayer);
-            changePlayers();
-            //checkScore();
+            const cellUsed = event.target.getAttribute('data-used');
+            if (cellUsed === "false") {
+                gameboard.updateCell(event, currentPlayer);
+                changePlayers();
+                checkScore();
+                event.target.setAttribute('data-used', true);
+            }
+
         });
     });
 
-    return {};
 })();
 
