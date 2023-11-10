@@ -108,6 +108,10 @@ const gameController = (function (
             icon.classList.remove('display-icon');
         });
 
+        oIcons.forEach((icon) => {
+            icon.classList.remove('display-icon');
+        });
+
         board.forEach((cell) => {
             cell.updateValue(0);
         });
