@@ -1,10 +1,15 @@
-html, body {
+html,
+body {
     height: 100%;
     box-sizing: border-box;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: inherit;
+    padding: 0;
+    margin: 0;
 }
 
 body {
@@ -12,7 +17,18 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1rem;
     background-color: azure;
+}
+
+#newGameBtn {
+    font-size: 1.125rem;
+    font-weight: 600;
+    background-color: white;
+    color: navy;
+    padding: 0.25rem 0.5rem;
+    border: 2px solid black;
+    border-radius: 4px;
 }
 
 #container {
@@ -23,7 +39,6 @@ body {
     border: 2px solid black;
     background-color: black;
     padding: 0.5rem;
-    margin-bottom: 80px;
 }
 
 .cell {
@@ -43,3 +58,7 @@ img {
     visibility: visible;
 }
 
+p {
+    font-size: 1.25rem;
+    font-weight: 600;
+}

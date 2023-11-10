@@ -2,12 +2,22 @@ const CacheDOM = (function () {
     const cellNodes = [...document.querySelectorAll('.cell')];
     const xIcons = [...document.querySelectorAll('.player1')];
     const oIcons = [...document.querySelectorAll('.player2')];
+    const newGameBtn = document.querySelector('#newGameBtn');
+    const message = document.querySelector('#message');
 
     const getCellNodes = () => cellNodes;
     const getXIcons = () => xIcons;
     const getOIcons = () => oIcons;
+    const getBtn = () => newGameBtn;
+    const getMessageNode = () => message;
 
-    return { getCellNodes, getXIcons, getOIcons };
+    return {
+        getCellNodes,
+        getXIcons,
+        getOIcons,
+        getBtn,
+        getMessageNode,
+    };
 })();
 
 const Gameboard = (function () {
@@ -25,9 +35,10 @@ const Gameboard = (function () {
     const getBoard = () => board;
 
     const updateCell = function (event, currentPlayer) {
-        const index = event.target.getAttribute('id');
-        const xIcon = xIcons.filter((icon) => event.target.contains(icon));
-        const oIcon = oIcons.filter((icon) => event.target.contains(icon));
+        const cell = event.target;
+        const index = cell.getAttribute('id');
+        const xIcon = xIcons.filter((icon) => cell.contains(icon));
+        const oIcon = oIcons.filter((icon) => cell.contains(icon));
 
         if (currentPlayer === "Player One") {
             board[index].updateValue(1);
@@ -73,13 +84,43 @@ const gameController = (function (
 ) {
     const domCache = CacheDOM;
     const cellNodes = domCache.getCellNodes();
+    const xIcons = domCache.getXIcons();
+    const oIcons = domCache.getOIcons();
+    const newGameBtn = domCache.getBtn();
+    const message = domCache.getMessageNode();
+
+    message.textContent = `${playerOne}'s Turn`;
+
     const gameboard = Gameboard;
     const board = gameboard.getBoard();
+
     let currentPlayer = playerOne;
+
+    newGameBtn.addEventListener('click', startNewGame);
+
+    function startNewGame() {
+        cellNodes.forEach((cell) => {
+            cell.classList.remove('display-icon');
+            cell.setAttribute('data-used', false);
+        });
+
+        xIcons.forEach((icon) => {
+            icon.classList.remove('display-icon');
+        });
+
+        board.forEach((cell) => {
+            cell.updateValue(0);
+        });
+
+        message.textContent = `${playerOne}'s Turn`;
+
+        updateCellEvents('removeEventListener');
+        updateCellEvents('addEventListener');
+    }
 
     updateCellEvents('addEventListener');
 
-    function updateCellEvents (eventMethod) {
+    function updateCellEvents(eventMethod) {
         cellNodes.forEach((cellNode) => {
             cellNode[eventMethod]('click', cellEvents);
         })
@@ -98,6 +139,7 @@ const gameController = (function (
     function changePlayers() {
         currentPlayer = (currentPlayer === playerOne) ?
             playerTwo : playerOne;
+        message.textContent = `${currentPlayer}'s Turn`;
     }
 
     function checkScore() {
@@ -139,17 +181,20 @@ const gameController = (function (
 
         if (gameTied) announceTie();
 
+        function declareWinner(player) {
+            message.textContent = `${player} Wins!`;
+            // console.log(`${player} Wins!`);
+            updateCellEvents('removeEventListener');
+        }
+
+        function announceTie() {
+            message.textContent = "It's a Tie!";
+            // console.log("It's a Tie!");
+            updateCellEvents('removeEventListener');
+        }
     }
 
-    function declareWinner(player) {
-        console.log(`${player} Wins!`);
-        updateCellEvents('removeEventListener');
-    }
 
-    function announceTie() {
-        console.log("It's a Tie!");
-        updateCellEvents('removeEventListener');
-    }
 
 })();
 
