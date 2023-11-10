@@ -1,40 +1,3 @@
-//gameboard object
-
-//player objects
-
-//gameController object
-
-//display function
-
-//score function
-
-/* 
- const winningCombos = [123, 456, 789, 147, 258, 369, 159, 357]
- horizontal: 123, 456, 789
- vertical: 147, 258, 369
- diagonal: 159, 357
-
- need to check if all cells have been selected for game ending tie
-
- have a gameboard array containing cells
-
- each cell has a private variable and methods to update / retrieve that variable
-
- after each turn, loop over gameboard and check cell values for a winning combo
-
- for (let i=0; i<gameboardArr.length; i++) {
-    const cellValue = gameboardArr[i].getValue();
-    const playerOneCells = [];
-    const playerTwoCells = [];
-    if (cellValue === 1) {
-        playerOneCells.push(i);
-    }
- }
-
- Or Array.filter for cells with specific value instead of using that loop
-
-*/
-
 const CacheDOM = (function () {
     const cellNodes = [...document.querySelectorAll('.cell')];
     const xIcons = [...document.querySelectorAll('.player1')];
@@ -110,11 +73,27 @@ const gameController = (function (
 ) {
     const domCache = CacheDOM;
     const cellNodes = domCache.getCellNodes();
-
     const gameboard = Gameboard;
     const board = gameboard.getBoard();
-
     let currentPlayer = playerOne;
+
+    updateCellEvents('addEventListener');
+
+    function updateCellEvents (eventMethod) {
+        cellNodes.forEach((cellNode) => {
+            cellNode[eventMethod]('click', cellEvents);
+        })
+    }
+
+    function cellEvents(event) {
+        const cellUsed = event.target.getAttribute('data-used');
+        if (cellUsed === "false") {
+            gameboard.updateCell(event, currentPlayer);
+            changePlayers();
+            checkScore();
+            event.target.setAttribute('data-used', true);
+        }
+    }
 
     function changePlayers() {
         currentPlayer = (currentPlayer === playerOne) ?
@@ -135,9 +114,8 @@ const gameController = (function (
 
         const p1Cells = gameboard.getCellPositions(1);
         const p2Cells = gameboard.getCellPositions(2);
-        console.log({ p1Cells, p2Cells });
 
-        winningCombos.forEach((combo) => {
+        const gameWon = winningCombos.some((combo) => {
             const playerOneWins = combo.every(position => {
                 return p1Cells.includes(position);
             });
@@ -146,26 +124,32 @@ const gameController = (function (
                 return p2Cells.includes(position);
             });
 
-            if (playerOneWins) console.log("Player One Wins"); //declareWinner(playerOne);
+            if (playerOneWins) declareWinner(playerOne);
 
-            if (playerTwoWins) console.log("Player Two Wins"); //declareWinner(playerTwo);      
+            if (playerTwoWins) declareWinner(playerTwo);
+
+            return (playerOneWins || playerTwoWins);
         });
+
+        if (gameWon) return;
+
+        const gameTied = board.every((cell) => {
+            return cell.getValue();
+        });
+
+        if (gameTied) announceTie();
+
     }
-    // check if all cells have a truthy value for a tie
-    // link to other functions depending on checkScore result
 
-    cellNodes.forEach((cellNode) => {
-        cellNode.addEventListener('click', (event) => {
-            const cellUsed = event.target.getAttribute('data-used');
-            if (cellUsed === "false") {
-                gameboard.updateCell(event, currentPlayer);
-                changePlayers();
-                checkScore();
-                event.target.setAttribute('data-used', true);
-            }
+    function declareWinner(player) {
+        console.log(`${player} Wins!`);
+        updateCellEvents('removeEventListener');
+    }
 
-        });
-    });
+    function announceTie() {
+        console.log("It's a Tie!");
+        updateCellEvents('removeEventListener');
+    }
 
 })();
 
