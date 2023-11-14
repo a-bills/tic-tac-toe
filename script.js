@@ -32,6 +32,21 @@ const Gameboard = (function () {
         board.push(Cell(i));
     }
 
+    function Cell(i) {
+        let value = 0;
+        const position = i;
+    
+        const updateValue = (player) => {
+            value = player;
+        };
+    
+        const getValue = () => value;
+    
+        const getPosition = () => position;
+    
+        return { updateValue, getValue, getPosition };
+    }
+
     const getBoard = () => board;
 
     const updateCell = function (event, currentPlayer) {
@@ -62,21 +77,6 @@ const Gameboard = (function () {
 
     return { getBoard, updateCell, getCellPositions };
 })();
-
-function Cell(i) {
-    let value = 0;
-    const position = i;
-
-    const updateValue = (player) => {
-        value = player;
-    };
-
-    const getValue = () => value;
-
-    const getPosition = () => position;
-
-    return { updateValue, getValue, getPosition };
-}
 
 const gameController = (function (
     playerOne = "Player One",
@@ -115,6 +115,8 @@ const gameController = (function (
         board.forEach((cell) => {
             cell.updateValue(0);
         });
+
+        currentPlayer = playerOne;
 
         message.textContent = `${playerOne}'s Turn`;
 
@@ -201,6 +203,4 @@ const gameController = (function (
 
 
 })();
-
-console.log('git test')
 
